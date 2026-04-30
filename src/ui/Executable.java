@@ -24,9 +24,9 @@ public class Executable {
                 System.out.println("\n--- GESTION ENERGETICA EL REMANSO ---");
                 System.out.println("1. Agregar Dispositivo");
                 System.out.println("2. Agregar Evento (Uso)");
-                System.out.println("3. Actualizar Valor Consumo");
+                System.out.println("3. Actualizar Consumo");
                 System.out.println("4. Consultar Resumen por Piso");
-                System.out.println("5. Ver Alertas (> 0.3 KWh)");
+                System.out.println("5. Dispositivos que requieren cambio (> 0.3 KWh)");
                 System.out.println("0. Salir");
                 System.out.print("Opcion: ");
                 int opt = reader.nextInt();
