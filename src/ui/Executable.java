@@ -1,106 +1,90 @@
 package ui;
 
+import java.util.Scanner;
 import model.Controller;
 
-import java.time.LocalDate;
-import java.util.Scanner;
-
 public class Executable {
+    private Scanner reader;
+    private Controller controller;
 
-  private Controller control;
-  private Scanner reader;
+    public Executable() {
+        reader = new Scanner(System.in);
+        controller = new Controller();
+    }
 
-  public Executable() {
-    this.control = new Controller();
-    this.reader = new Scanner(System.in);
-  }
+    public static void main(String[] args) {
+        Executable exe = new Executable();
+        exe.menu();
+    }
 
-  public static void main(String[] args) {
-    Executable exe = new Executable();
-    exe.showMenu();
-  }
+    public void menu() {
+        boolean exit = false;
+        while (!exit) {
+            try {
+                System.out.println("\n--- GESTION ENERGETICA EL REMANSO ---");
+                System.out.println("1. Agregar Dispositivo");
+                System.out.println("2. Agregar Evento (Uso)");
+                System.out.println("3. Actualizar Valor Consumo");
+                System.out.println("4. Consultar Resumen por Piso");
+                System.out.println("5. Ver Alertas (> 0.3 KWh)");
+                System.out.println("0. Salir");
+                System.out.print("Opcion: ");
+                int opt = reader.nextInt();
+                reader.nextLine();
 
-  public void showMenu() {
+                switch (opt) {
+                    case 1: registerDevice(); break;
+                    case 2: registerEvent(); break;
+                    case 3: updateCons(); break;
+                    case 4: calculateTotal(); break;
+                    case 5: System.out.println(controller.getHighConsumptionDevices()); break;
+                    case 0: exit = true; break;
+                    default: System.out.println("Opcion no valida.");
+                }
+            } catch (Exception e) {
+                System.out.println("Error de entrada. Intente de nuevo.");
+                reader.nextLine();
+            }
+        }
+    }
 
-    System.out.print("\033[H\033[2J");
+    private void registerDevice() {
+        System.out.print("Piso (1-12): ");
+        int floor = reader.nextInt() - 1;
+        System.out.print("Serial: ");
+        String serial = reader.next();
+        System.out.print("Consumo Nominal (KWh): ");
+        double cons = reader.nextDouble();
+        System.out.println(controller.addDevice(floor, serial, cons));
+    }
 
-    int option = 0;
+    private void registerEvent() {
+        System.out.print("Serial del dispositivo: ");
+        String serial = reader.next();
+        System.out.print("Fecha: ");
+        String date = reader.next();
+        System.out.print("Horas de uso: ");
+        double hours = reader.nextDouble();
+        System.out.println(controller.addEventToDevice(serial, date, hours));
+    }
 
-    do {
-      System.out.println("\tMENU PRINCIPAL");
-      System.out.println("1. Agregar un dispositivo");
-      System.out.println("2. Agregar evento a un dispositivo");
-      System.out.println("3. Actualizar la unidad de consumo de un dispositivo");
-      System.out.println("4. Mostrar el consumo total de un dispositivo");
+    private void updateCons() {
+        System.out.print("Serial: ");
+        String serial = reader.next();
+        System.out.print("Nuevo valor de consumo: ");
+        double val = reader.nextDouble();
+        System.out.println(controller.updateDeviceConsumption(serial, val));
+    }
 
-      System.out.println("0. Salir del sistema");
-      option = reader.nextInt();
-
-      switch (option) {
-        case 1:
-          addDevice();
-          break;
-        case 2:
-          registerEventForDevice();
-          break;
-        case 3:
-          updateDeviceConsumptionUnit();
-          break;
-        case 4:
-          showDeviceConsumption();
-          break;
-        case 0:
-          System.out.println("Gracias por usar nuestros servicios!");
-          break;
-
-        default:
-          System.out.println("Digite una opcion valida");
-          break;
-      }
-
-    } while (option != 0);
-
-  }
-
-  public void addDevice() {
-    reader.nextLine();
-    System.out.println("Agregar Dispositivo:");
-    System.out.println("Digite el serial del dispositivo");
-    String serial = reader.nextLine();
-    System.out.println("Digite el valor de consumo del dispositivo");
-    double consumption = reader.nextDouble();
-    System.out.println("Digite el piso donde se encuentra el dispositivo");
-    int floor = reader.nextInt();
-    reader.nextLine(); // Consume the newline character
-
-  }
-
-  public void registerEventForDevice() {
-    reader.nextLine();
-    System.out.println("Agregar evento:");
-    System.out.println("Digite el serial del dispositivo");
-    String serial = reader.nextLine();
-    System.out.println("Digite la fecha del evento (dd/MM/yyyy)");
-    LocalDate date = LocalDate.parse(reader.nextLine(), java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-    System.out.println("Digite la cantidad de horas que el dispositivo estuvo encendido");
-    double hours = reader.nextDouble();
-
-  }
-
-  public void updateDeviceConsumptionUnit() {
-    reader.nextLine();
-    System.out.println("Actualizar unidad de consumo:");
-    System.out.println("Digite el serial del dispositivo");
-    String serial = reader.nextLine();
-    System.out.println("Digite el nuevo valor de consumo del dispositivo");
-    double newConsumption = reader.nextDouble();
-  }
-
-  public void showDeviceConsumption() {
-    reader.nextLine();
-    System.out.println("Mostrar consumo total:");
-    System.out.println("Digite el serial del dispositivo");
-    String serial = reader.nextLine();
-
-  }
+    private void calculateTotal() {
+        // Mostramos el mapa de pisos antes de preguntar
+        System.out.println(controller.getBuildingSummary());
+        
+        System.out.print("Seleccione el Piso a consultar (1-12): ");
+        int floor = reader.nextInt() - 1;
+        System.out.print("Ingrese el Serial exacto: ");
+        String serial = reader.next();
+        
+        System.out.println(controller.getDeviceTotalConsumption(floor, serial));
+    }
 }
